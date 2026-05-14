@@ -1,6 +1,7 @@
 import { IssueProviderKey } from '../issue/issue.model';
 import { EntityState } from '@ngrx/entity';
 import { TaskAttachment } from './task-attachment/task-attachment.model';
+import { TaskTimeline } from './task-timeline/task-timeline.model';
 // Import the unified Task type from plugin-api
 import { Task as PluginTask } from '@super-productivity/plugin-api';
 
@@ -132,6 +133,7 @@ export interface TaskCopy
   deadlineRemindAt?: number | null;
   attachments: TaskAttachment[];
   reminderId?: string | null;
+  timeline?: TaskTimeline;
 
   // Ensure type compatibility for internal fields
   modified?: number;
