@@ -89,7 +89,9 @@ export const completeNode = (
   nodeId: string,
   timestamp: number,
 ): TaskTimeline => {
-  if (getNodeStatus(timeline, nodeId) === 'locked') {
+  const status = getNodeStatus(timeline, nodeId);
+
+  if (status === 'locked' || status === 'completed') {
     return timeline;
   }
 
@@ -101,7 +103,16 @@ export const completeNode = (
 };
 
 export const reopenNode = (timeline: TaskTimeline, nodeId: string): TaskTimeline =>
-  updateNode(timeline, nodeId, ({ completedAt, ...node }) => node);
+  updateNode(timeline, nodeId, (node) => {
+    if (node.completedAt === undefined) {
+      return node;
+    }
+
+    const reopenedNode: TaskTimelineNode = { ...node };
+    delete reopenedNode.completedAt;
+
+    return reopenedNode;
+  });
 
 const updateNode = (
   timeline: TaskTimeline,

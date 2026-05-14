@@ -165,6 +165,13 @@ describe('task timeline utilities', () => {
     expect(completed.stages[0].nodes[0].completedAt).toBe(2345);
   });
 
+  it('does not complete already completed nodes again', () => {
+    const completed = completeNode(timeline, 'node-a', 1234);
+
+    expect(completeNode(completed, 'node-a', 2345)).toBe(completed);
+    expect(completed.stages[0].nodes[0].completedAt).toBe(1234);
+  });
+
   it('reopens a completed node by clearing completedAt only', () => {
     const completed = completeNode(timeline, 'node-a', 1234);
     const reopened = reopenNode(completed, 'node-a');
@@ -172,6 +179,10 @@ describe('task timeline utilities', () => {
     expect(reopened.stages[0].nodes[0].startedAt).toBe(1234);
     expect(reopened.stages[0].nodes[0].completedAt).toBeUndefined();
     expect(completed.stages[0].nodes[0].completedAt).toBe(1234);
+  });
+
+  it('does not reopen nodes that are not completed', () => {
+    expect(reopenNode(timeline, 'node-a')).toBe(timeline);
   });
 
   it('does not start locked nodes', () => {
