@@ -9,6 +9,7 @@
         <input
           [value]="stage.title"
           [placeholder]="T.F.TASK.ADDITIONAL_INFO.TITLE_PLACEHOLDER | translate"
+          [attr.aria-label]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_STAGE_TITLE | translate"
           (change)="updateStageTitle(stage.id, inputValue($event))"
           class="title-input"
         />
@@ -18,6 +19,7 @@
             type="button"
             (click)="addNode(stage.id)"
             [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_ADD_NODE | translate"
+            [attr.aria-label]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_ADD_NODE | translate"
           >
             <mat-icon>add</mat-icon>
           </button>
@@ -26,6 +28,7 @@
             type="button"
             (click)="deleteStage(stage.id)"
             [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_DELETE_STAGE | translate"
+            [attr.aria-label]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_DELETE_STAGE | translate"
           >
             <mat-icon>delete</mat-icon>
           </button>
@@ -56,6 +59,9 @@
               <input
                 [value]="node.title"
                 [placeholder]="T.F.TASK.ADDITIONAL_INFO.TITLE_PLACEHOLDER | translate"
+                [attr.aria-label]="
+                  T.F.TASK.ADDITIONAL_INFO.TIMELINE_NODE_TITLE | translate
+                "
                 (change)="updateNodeTitle(node.id, inputValue($event))"
                 class="title-input"
               />
@@ -76,6 +82,9 @@
                   type="button"
                   (click)="start(node.id)"
                   [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_START_NODE | translate"
+                  [attr.aria-label]="
+                    T.F.TASK.ADDITIONAL_INFO.TIMELINE_START_NODE | translate
+                  "
                 >
                   <mat-icon>play_arrow</mat-icon>
                 </button>
@@ -88,6 +97,9 @@
                   [matTooltip]="
                     T.F.TASK.ADDITIONAL_INFO.TIMELINE_COMPLETE_NODE | translate
                   "
+                  [attr.aria-label]="
+                    T.F.TASK.ADDITIONAL_INFO.TIMELINE_COMPLETE_NODE | translate
+                  "
                 >
                   <mat-icon>check</mat-icon>
                 </button>
@@ -98,6 +110,9 @@
                   type="button"
                   (click)="reopen(node.id)"
                   [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_REOPEN_NODE | translate"
+                  [attr.aria-label]="
+                    T.F.TASK.ADDITIONAL_INFO.TIMELINE_REOPEN_NODE | translate
+                  "
                 >
                   <mat-icon>undo</mat-icon>
                 </button>
@@ -107,6 +122,9 @@
                 type="button"
                 (click)="deleteNode(node.id)"
                 [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_DELETE_NODE | translate"
+                [attr.aria-label]="
+                  T.F.TASK.ADDITIONAL_INFO.TIMELINE_DELETE_NODE | translate
+                "
               >
                 <mat-icon>close</mat-icon>
               </button>

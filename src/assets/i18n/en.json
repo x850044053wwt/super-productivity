@@ -1609,8 +1609,10 @@
         "TIMELINE_NODE_IN_PROGRESS": "In progress",
         "TIMELINE_NODE_LOCKED": "Locked",
         "TIMELINE_NODE_NOT_STARTED": "Not started",
+        "TIMELINE_NODE_TITLE": "Timeline node title",
         "TIMELINE_REOPEN_NODE": "Reopen",
         "TIMELINE_START_NODE": "Start",
+        "TIMELINE_STAGE_TITLE": "Timeline stage title",
         "TITLE_PLACEHOLDER": "Enter a title"
       },
       "B": {

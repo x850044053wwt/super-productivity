@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
+import { T } from '../../../t.const';
 import { TaskTimelineComponent } from './task-timeline.component';
 import { TaskTimeline } from './task-timeline.model';
 
@@ -62,10 +63,40 @@ describe('TaskTimelineComponent', () => {
     expect(inputValues).toContain('Compare logs');
   });
 
+  it('provides accessible labels for title inputs and icon actions', () => {
+    const element: HTMLElement = fixture.nativeElement;
+    const inputLabels = Array.from(
+      element.querySelectorAll<HTMLInputElement>('input'),
+    ).map((input) => input.getAttribute('aria-label'));
+    const buttonLabels = Array.from(
+      element.querySelectorAll<HTMLButtonElement>('button[mat-icon-button]'),
+    ).map((button) => button.getAttribute('aria-label'));
+
+    expect(inputLabels).toContain(T.F.TASK.ADDITIONAL_INFO.TIMELINE_STAGE_TITLE);
+    expect(inputLabels).toContain(T.F.TASK.ADDITIONAL_INFO.TIMELINE_NODE_TITLE);
+    expect(buttonLabels).toContain(T.F.TASK.ADDITIONAL_INFO.TIMELINE_ADD_NODE);
+    expect(buttonLabels).toContain(T.F.TASK.ADDITIONAL_INFO.TIMELINE_DELETE_STAGE);
+    expect(buttonLabels).toContain(T.F.TASK.ADDITIONAL_INFO.TIMELINE_START_NODE);
+    expect(buttonLabels).toContain(T.F.TASK.ADDITIONAL_INFO.TIMELINE_REOPEN_NODE);
+    expect(buttonLabels).toContain(T.F.TASK.ADDITIONAL_INFO.TIMELINE_DELETE_NODE);
+  });
+
   it('does not emit when trying to start a locked node', () => {
     spyOn(component.timelineChange, 'emit');
 
     component.start('node-c');
+
+    expect(component.timelineChange.emit).not.toHaveBeenCalled();
+  });
+
+  it('does not emit for no-op edit, delete, and add-node actions', () => {
+    spyOn(component.timelineChange, 'emit');
+
+    component.updateStageTitle('stage-b', 'B');
+    component.updateNodeTitle('node-b1', 'Validate samples');
+    component.deleteStage('missing-stage');
+    component.deleteNode('missing-node');
+    component.addNode('missing-stage');
 
     expect(component.timelineChange.emit).not.toHaveBeenCalled();
   });
