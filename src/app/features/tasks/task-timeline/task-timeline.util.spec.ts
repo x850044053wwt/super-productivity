@@ -138,6 +138,7 @@ describe('task timeline utilities', () => {
 
     expect(result.stages[0].nodes[0].startedAt).toBe(1234);
     expect(result.stages[0].nodes[0].completedAt).toBeUndefined();
+    expect(timeline.stages[0].nodes[0].startedAt).toBeUndefined();
   });
 
   it('does not start completed nodes', () => {
@@ -151,6 +152,8 @@ describe('task timeline utilities', () => {
 
     expect(result.stages[0].nodes[0].startedAt).toBe(1234);
     expect(result.stages[0].nodes[0].completedAt).toBe(1234);
+    expect(timeline.stages[0].nodes[0].startedAt).toBeUndefined();
+    expect(timeline.stages[0].nodes[0].completedAt).toBeUndefined();
     expect(isStageComplete(result.stages[0])).toBe(true);
   });
 
@@ -168,6 +171,7 @@ describe('task timeline utilities', () => {
 
     expect(reopened.stages[0].nodes[0].startedAt).toBe(1234);
     expect(reopened.stages[0].nodes[0].completedAt).toBeUndefined();
+    expect(completed.stages[0].nodes[0].completedAt).toBe(1234);
   });
 
   it('does not start locked nodes', () => {
