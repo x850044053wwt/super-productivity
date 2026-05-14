@@ -101,6 +101,20 @@ describe('TaskTimelineComponent', () => {
     expect(component.timelineChange.emit).not.toHaveBeenCalled();
   });
 
+  it('emits a timeline with a new stage when empty', () => {
+    fixture.componentRef.setInput('timeline', undefined);
+    fixture.detectChanges();
+    spyOn(component.timelineChange, 'emit');
+
+    component.addStage();
+
+    expect(component.timelineChange.emit).toHaveBeenCalled();
+    const emitted = (component.timelineChange.emit as jasmine.Spy).calls.mostRecent()
+      .args[0] as TaskTimeline;
+    expect(emitted.stages).toHaveSize(1);
+    expect(emitted.stages[0].nodes).toEqual([]);
+  });
+
   it('emits an updated timeline when starting an unlocked node', () => {
     spyOn(component.timelineChange, 'emit');
 

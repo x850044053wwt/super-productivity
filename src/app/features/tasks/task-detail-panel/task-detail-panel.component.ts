@@ -62,6 +62,8 @@ import { IssueLog } from '../../../core/log';
 import { TaskTitleComponent } from '../../../ui/task-title/task-title.component';
 import { MatIcon } from '@angular/material/icon';
 import { TaskListComponent } from '../task-list/task-list.component';
+import { TaskTimelineComponent } from '../task-timeline/task-timeline.component';
+import { TaskTimeline } from '../task-timeline/task-timeline.model';
 import { MatButton } from '@angular/material/button';
 import { ProgressBarComponent } from '../../../ui/progress-bar/progress-bar.component';
 import { IssueHeaderComponent } from '../../issue/issue-header/issue-header.component';
@@ -112,6 +114,7 @@ import { TaskContextMenuComponent } from '../task-context-menu/task-context-menu
     MatIconButton,
     MatTooltip,
     TaskListComponent,
+    TaskTimelineComponent,
     MatButton,
     ProgressBarComponent,
     IssueHeaderComponent,
@@ -623,6 +626,10 @@ export class TaskDetailPanelComponent implements OnInit, AfterViewInit, OnDestro
       event.detail === 0,
       trigger instanceof HTMLElement ? trigger : undefined,
     );
+  }
+
+  updateTimeline(timeline: TaskTimeline): void {
+    this.taskService.update(this.task().id, { timeline });
   }
 
   estimateTime(): void {
