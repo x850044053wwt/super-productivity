@@ -922,6 +922,56 @@ describe('taskSharedCrudMetaReducer', () => {
       );
     });
 
+    it('should preserve timeline data on task update', () => {
+      const testState = createStateWithExistingTasks(['task1'], [], ['task1']);
+      const action = createUpdateTaskAction('task1', {
+        timeline: {
+          stages: [
+            {
+              id: 'stage-a',
+              title: 'A',
+              nodes: [
+                {
+                  id: 'node-a',
+                  title: 'Collect context',
+                  startedAt: 1000,
+                  completedAt: 2000,
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      metaReducer(testState, action);
+
+      expectStateUpdate(
+        {
+          ...expectTaskUpdate('task1', {
+            timeline: {
+              stages: [
+                {
+                  id: 'stage-a',
+                  title: 'A',
+                  nodes: [
+                    {
+                      id: 'node-a',
+                      title: 'Collect context',
+                      startedAt: 1000,
+                      completedAt: 2000,
+                    },
+                  ],
+                },
+              ],
+            },
+          }),
+        },
+        action,
+        mockReducer,
+        testState,
+      );
+    });
+
     it('should add task to new tags and remove from old tags when tagIds are updated', () => {
       const testState = createStateWithExistingTasks(
         ['task1'],
