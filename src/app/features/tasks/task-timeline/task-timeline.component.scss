@@ -85,11 +85,15 @@
   width: 100%;
   min-width: 0;
   border: 0;
-  outline: 0;
   background: transparent;
   color: var(--text-color);
   font: inherit;
   font-weight: 600;
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
 }
 
 .node .title-input {

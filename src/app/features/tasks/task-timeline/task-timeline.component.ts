@@ -49,23 +49,53 @@ export class TaskTimelineComponent {
       return;
     }
 
-    this.timelineChange.emit(addNodeToStage(currentTimeline, stageId, '', nanoid()));
+    this.emitIfChanged(
+      addNodeToStage(currentTimeline, stageId, '', nanoid()),
+      currentTimeline,
+    );
   }
 
   updateStageTitle(stageId: string, title: string): void {
-    this.timelineChange.emit(updateStageTitle(this.timeline(), stageId, title));
+    const currentTimeline = this.timeline();
+
+    if (!currentTimeline) {
+      return;
+    }
+
+    this.emitIfChanged(
+      updateStageTitle(currentTimeline, stageId, title),
+      currentTimeline,
+    );
   }
 
   updateNodeTitle(nodeId: string, title: string): void {
-    this.timelineChange.emit(updateNodeTitle(this.timeline(), nodeId, title));
+    const currentTimeline = this.timeline();
+
+    if (!currentTimeline) {
+      return;
+    }
+
+    this.emitIfChanged(updateNodeTitle(currentTimeline, nodeId, title), currentTimeline);
   }
 
   deleteStage(stageId: string): void {
-    this.timelineChange.emit(deleteStage(this.timeline(), stageId));
+    const currentTimeline = this.timeline();
+
+    if (!currentTimeline) {
+      return;
+    }
+
+    this.emitIfChanged(deleteStage(currentTimeline, stageId), currentTimeline);
   }
 
   deleteNode(nodeId: string): void {
-    this.timelineChange.emit(deleteNode(this.timeline(), nodeId));
+    const currentTimeline = this.timeline();
+
+    if (!currentTimeline) {
+      return;
+    }
+
+    this.emitIfChanged(deleteNode(currentTimeline, nodeId), currentTimeline);
   }
 
   start(nodeId: string): void {
@@ -77,9 +107,7 @@ export class TaskTimelineComponent {
 
     const updated = startNode(currentTimeline, nodeId, Date.now());
 
-    if (updated !== currentTimeline) {
-      this.timelineChange.emit(updated);
-    }
+    this.emitIfChanged(updated, currentTimeline);
   }
 
   complete(nodeId: string): void {
@@ -91,9 +119,7 @@ export class TaskTimelineComponent {
 
     const updated = completeNode(currentTimeline, nodeId, Date.now());
 
-    if (updated !== currentTimeline) {
-      this.timelineChange.emit(updated);
-    }
+    this.emitIfChanged(updated, currentTimeline);
   }
 
   reopen(nodeId: string): void {
@@ -105,14 +131,18 @@ export class TaskTimelineComponent {
 
     const updated = reopenNode(currentTimeline, nodeId);
 
-    if (updated !== currentTimeline) {
-      this.timelineChange.emit(updated);
-    }
+    this.emitIfChanged(updated, currentTimeline);
   }
 
   inputValue(event: Event): string {
     const target = event.target;
 
     return target instanceof HTMLInputElement ? target.value : '';
+  }
+
+  private emitIfChanged(updated: TaskTimeline, currentTimeline: TaskTimeline): void {
+    if (updated !== currentTimeline) {
+      this.timelineChange.emit(updated);
+    }
   }
 }
