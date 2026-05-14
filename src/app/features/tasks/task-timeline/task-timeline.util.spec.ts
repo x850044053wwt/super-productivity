@@ -40,6 +40,22 @@ describe('task timeline utilities', () => {
     });
   });
 
+  it('adds a stage to an existing timeline without mutating the original timeline', () => {
+    const result = addStage(timeline, 'D', 'stage-d');
+
+    expect(result.stages.map((stage) => stage.id)).toEqual([
+      'stage-a',
+      'stage-b',
+      'stage-c',
+      'stage-d',
+    ]);
+    expect(timeline.stages.map((stage) => stage.id)).toEqual([
+      'stage-a',
+      'stage-b',
+      'stage-c',
+    ]);
+  });
+
   it('adds a node to an existing stage without mutating the original timeline', () => {
     const result = addNodeToStage(timeline, 'stage-b', 'New check', 'node-b3');
 
@@ -56,6 +72,20 @@ describe('task timeline utilities', () => {
 
   it('unlocks only the first incomplete stage', () => {
     expect(getUnlockedStageId(timeline)).toBe('stage-a');
+  });
+
+  it('returns null when every stage is complete', () => {
+    const result = completeNode(
+      completeNode(
+        completeNode(completeNode(timeline, 'node-a', 1000), 'node-b1', 2000),
+        'node-b2',
+        3000,
+      ),
+      'node-c',
+      4000,
+    );
+
+    expect(getUnlockedStageId(result)).toBeNull();
   });
 
   it('allows multiple nodes in one unlocked stage to be in progress together', () => {
@@ -80,11 +110,40 @@ describe('task timeline utilities', () => {
     expect(getNodeStatus(withB2Complete, 'node-c')).toBe('notStarted');
   });
 
+  it('reports unknown nodes as locked', () => {
+    expect(getNodeStatus(timeline, 'missing-node')).toBe('locked');
+  });
+
+  it('reports completed nodes as completed even when their stage is locked', () => {
+    const result: TaskTimeline = {
+      stages: [
+        timeline.stages[0],
+        timeline.stages[1],
+        {
+          ...timeline.stages[2],
+          nodes: [{ ...timeline.stages[2].nodes[0], completedAt: 1000 }],
+        },
+      ],
+    };
+
+    expect(getNodeStatus(result, 'node-c')).toBe('completed');
+  });
+
+  it('reports empty stages as incomplete', () => {
+    expect(isStageComplete({ id: 'empty-stage', title: 'Empty', nodes: [] })).toBe(false);
+  });
+
   it('records startedAt when a node starts', () => {
     const result = startNode(timeline, 'node-a', 1234);
 
     expect(result.stages[0].nodes[0].startedAt).toBe(1234);
     expect(result.stages[0].nodes[0].completedAt).toBeUndefined();
+  });
+
+  it('does not start completed nodes', () => {
+    const completed = completeNode(timeline, 'node-a', 1234);
+
+    expect(startNode(completed, 'node-a', 2345)).toBe(completed);
   });
 
   it('records both timestamps when completing a node that was never started', () => {
@@ -93,6 +152,14 @@ describe('task timeline utilities', () => {
     expect(result.stages[0].nodes[0].startedAt).toBe(1234);
     expect(result.stages[0].nodes[0].completedAt).toBe(1234);
     expect(isStageComplete(result.stages[0])).toBe(true);
+  });
+
+  it('preserves startedAt when completing a node that was already started', () => {
+    const started = startNode(timeline, 'node-a', 1234);
+    const completed = completeNode(started, 'node-a', 2345);
+
+    expect(completed.stages[0].nodes[0].startedAt).toBe(1234);
+    expect(completed.stages[0].nodes[0].completedAt).toBe(2345);
   });
 
   it('reopens a completed node by clearing completedAt only', () => {
@@ -105,5 +172,9 @@ describe('task timeline utilities', () => {
 
   it('does not start locked nodes', () => {
     expect(startNode(timeline, 'node-c', 1234)).toBe(timeline);
+  });
+
+  it('does not complete locked nodes', () => {
+    expect(completeNode(timeline, 'node-c', 1234)).toBe(timeline);
   });
 });
