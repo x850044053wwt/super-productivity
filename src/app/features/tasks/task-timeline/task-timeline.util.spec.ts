@@ -2,11 +2,15 @@ import {
   addNodeToStage,
   addStage,
   completeNode,
+  deleteNode,
+  deleteStage,
   getNodeStatus,
   getUnlockedStageId,
   isStageComplete,
   reopenNode,
   startNode,
+  updateNodeTitle,
+  updateStageTitle,
 } from './task-timeline.util';
 import { TaskTimeline } from './task-timeline.model';
 
@@ -191,5 +195,28 @@ describe('task timeline utilities', () => {
 
   it('does not complete locked nodes', () => {
     expect(completeNode(timeline, 'node-c', 1234)).toBe(timeline);
+  });
+
+  it('updates stage and node titles immutably', () => {
+    const renamedStage = updateStageTitle(timeline, 'stage-b', 'Parallel checks');
+    const renamedNode = updateNodeTitle(renamedStage, 'node-b1', 'Validate sample set');
+
+    expect(renamedNode.stages[1].title).toBe('Parallel checks');
+    expect(renamedNode.stages[1].nodes[0].title).toBe('Validate sample set');
+    expect(timeline.stages[1].title).toBe('B');
+    expect(timeline.stages[1].nodes[0].title).toBe('Validate samples');
+  });
+
+  it('deletes nodes and stages immutably', () => {
+    const withoutNode = deleteNode(timeline, 'node-b1');
+    const withoutStage = deleteStage(withoutNode, 'stage-c');
+
+    expect(withoutNode.stages[1].nodes.map((node) => node.id)).toEqual(['node-b2']);
+    expect(withoutStage.stages.map((stage) => stage.id)).toEqual(['stage-a', 'stage-b']);
+    expect(timeline.stages.map((stage) => stage.id)).toEqual([
+      'stage-a',
+      'stage-b',
+      'stage-c',
+    ]);
   });
 });

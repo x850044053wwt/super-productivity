@@ -1,0 +1,130 @@
+<div class="timeline">
+  @if (!timeline()?.stages?.length) {
+    <p class="empty">{{ T.F.TASK.ADDITIONAL_INFO.TIMELINE_EMPTY | translate }}</p>
+  }
+
+  @for (stage of timeline()?.stages ?? []; track stage.id) {
+    <section class="stage">
+      <header class="stage-header">
+        <input
+          [value]="stage.title"
+          [placeholder]="T.F.TASK.ADDITIONAL_INFO.TITLE_PLACEHOLDER | translate"
+          (change)="updateStageTitle(stage.id, inputValue($event))"
+          class="title-input"
+        />
+        <div class="stage-actions">
+          <button
+            mat-icon-button
+            type="button"
+            (click)="addNode(stage.id)"
+            [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_ADD_NODE | translate"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            type="button"
+            (click)="deleteStage(stage.id)"
+            [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_DELETE_STAGE | translate"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </header>
+
+      <div class="nodes">
+        @for (node of stage.nodes; track node.id) {
+          <article
+            class="node"
+            [class.is-completed]="nodeStatus(node.id) === 'completed'"
+            [class.is-in-progress]="nodeStatus(node.id) === 'inProgress'"
+            [class.is-locked]="nodeStatus(node.id) === 'locked'"
+          >
+            <mat-icon class="node-state-icon">
+              {{
+                nodeStatus(node.id) === 'completed'
+                  ? 'check_circle'
+                  : nodeStatus(node.id) === 'inProgress'
+                    ? 'play_circle'
+                    : nodeStatus(node.id) === 'locked'
+                      ? 'lock'
+                      : 'radio_button_unchecked'
+              }}
+            </mat-icon>
+
+            <div class="node-main">
+              <input
+                [value]="node.title"
+                [placeholder]="T.F.TASK.ADDITIONAL_INFO.TITLE_PLACEHOLDER | translate"
+                (change)="updateNodeTitle(node.id, inputValue($event))"
+                class="title-input"
+              />
+              <div class="node-meta">
+                @if (node.startedAt !== undefined) {
+                  <span>{{ node.startedAt | date: 'shortTime' }}</span>
+                }
+                @if (node.completedAt !== undefined) {
+                  <span>{{ node.completedAt | date: 'shortTime' }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="node-actions">
+              @if (nodeStatus(node.id) === 'notStarted') {
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="start(node.id)"
+                  [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_START_NODE | translate"
+                >
+                  <mat-icon>play_arrow</mat-icon>
+                </button>
+              }
+              @if (nodeStatus(node.id) === 'inProgress') {
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="complete(node.id)"
+                  [matTooltip]="
+                    T.F.TASK.ADDITIONAL_INFO.TIMELINE_COMPLETE_NODE | translate
+                  "
+                >
+                  <mat-icon>check</mat-icon>
+                </button>
+              }
+              @if (nodeStatus(node.id) === 'completed') {
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="reopen(node.id)"
+                  [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_REOPEN_NODE | translate"
+                >
+                  <mat-icon>undo</mat-icon>
+                </button>
+              }
+              <button
+                mat-icon-button
+                type="button"
+                (click)="deleteNode(node.id)"
+                [matTooltip]="T.F.TASK.ADDITIONAL_INFO.TIMELINE_DELETE_NODE | translate"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  <div class="timeline-footer">
+    <button
+      mat-button
+      type="button"
+      (click)="addStage()"
+    >
+      <mat-icon>add</mat-icon>
+      <span>{{ T.F.TASK.ADDITIONAL_INFO.TIMELINE_ADD_STAGE | translate }}</span>
+    </button>
+  </div>
+</div>
