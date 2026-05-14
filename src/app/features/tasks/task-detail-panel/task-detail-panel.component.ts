@@ -62,6 +62,8 @@ import { IssueLog } from '../../../core/log';
 import { TaskTitleComponent } from '../../../ui/task-title/task-title.component';
 import { MatIcon } from '@angular/material/icon';
 import { TaskListComponent } from '../task-list/task-list.component';
+import { TaskTimelineComponent } from '../task-timeline/task-timeline.component';
+import { TaskTimeline } from '../task-timeline/task-timeline.model';
 import { MatButton } from '@angular/material/button';
 import { ProgressBarComponent } from '../../../ui/progress-bar/progress-bar.component';
 import { IssueHeaderComponent } from '../../issue/issue-header/issue-header.component';
@@ -96,6 +98,7 @@ import { checkKeyCombo } from '../../../util/check-key-combo';
     MatIconButton,
     MatTooltip,
     TaskListComponent,
+    TaskTimelineComponent,
     MatButton,
     ProgressBarComponent,
     IssueHeaderComponent,
@@ -494,6 +497,10 @@ export class TaskDetailPanelComponent implements OnInit, AfterViewInit, OnDestro
     if (!defaultNotes || !$event || $event.trim() !== defaultNotes.trim()) {
       this.taskService.update(this.task().id, { notes: $event });
     }
+  }
+
+  updateTimeline(timeline: TaskTimeline): void {
+    this.taskService.update(this.task().id, { timeline });
   }
 
   estimateTime(): void {

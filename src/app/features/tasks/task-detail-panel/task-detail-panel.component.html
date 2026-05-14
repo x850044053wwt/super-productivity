@@ -79,6 +79,25 @@
       </ng-container>
     </task-detail-item>
   }
+  @if (!task().parentId) {
+    <task-detail-item
+      (collapseParent)="collapseParent()"
+      (keyPress)="onItemKeyPress($event)"
+      [expanded]="!!task().timeline?.stages?.length && !isDialogMode()"
+      [type]="'panel'"
+    >
+      <ng-container panel-header>
+        <mat-icon>timeline</mat-icon>
+        <span>{{ T.F.TASK.ADDITIONAL_INFO.TIMELINE | translate }}</span>
+      </ng-container>
+      <ng-container panel-content>
+        <task-timeline
+          [timeline]="task().timeline"
+          (timelineChange)="updateTimeline($event)"
+        ></task-timeline>
+      </ng-container>
+    </task-detail-item>
+  }
   @if (showTimeEstimate()) {
     <task-detail-item
       (collapseParent)="collapseParent()"
