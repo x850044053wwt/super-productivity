@@ -9,6 +9,7 @@ import {
   setIsMinimizeToTray,
   setIsTrayShowCurrentTask,
   setIsTrayShowCurrentCountdown,
+  setIsAlwaysOnTop,
 } from '../shared-state';
 import { refreshIndicator } from '../indicator';
 import { lockscreen } from '../lockscreen';
@@ -48,6 +49,13 @@ export const initAppControlIpc = (): void => {
     setIsTrayShowCurrentCountdown(!!cfg.misc.isTrayShowCurrentCountdown);
     refreshIndicator();
     updateLocalRestApiConfig(cfg);
+
+    const isAlwaysOnTop = !!cfg.misc.isAlwaysOnTop;
+    setIsAlwaysOnTop(isAlwaysOnTop);
+    const mainWin = getWin();
+    if (mainWin && mainWin.isAlwaysOnTop() !== isAlwaysOnTop) {
+      mainWin.setAlwaysOnTop(isAlwaysOnTop);
+    }
 
     if (cfg.misc.isUseCustomWindowTitleBar !== undefined) {
       await saveSimpleStore(
