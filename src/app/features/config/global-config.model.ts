@@ -38,6 +38,7 @@ export type MiscConfig = Readonly<{
   isShowProductivityTipLonger?: boolean;
   isTrayShowCurrentCountdown?: boolean;
   isUseCustomWindowTitleBar?: boolean;
+  isAlwaysOnTop?: boolean;
   customTheme?: string;
   // number: one of DefaultStartPage. string: project id.
   defaultStartPage?: number | string;
