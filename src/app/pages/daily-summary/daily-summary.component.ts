@@ -77,6 +77,7 @@ import {
 } from './simple-counter-summary-item/simple-counter-summary-item.component';
 import { MetricService } from '../../features/metric/metric.service';
 import { isWithinYesterdayMargin } from './is-include-yesterday.util';
+import { DistractionTrackerService } from '../../features/distraction-tracker/distraction-tracker.service';
 
 @Component({
   selector: 'daily-summary',
@@ -123,6 +124,7 @@ export class DailySummaryComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly _simpleCounterService = inject(SimpleCounterService);
   private readonly _dateService = inject(DateService);
   private readonly _metricService = inject(MetricService);
+  protected readonly distractionTracker = inject(DistractionTrackerService);
   private readonly _translateService = inject(TranslateService);
   private readonly _translateStore = inject(TranslateStore);
 

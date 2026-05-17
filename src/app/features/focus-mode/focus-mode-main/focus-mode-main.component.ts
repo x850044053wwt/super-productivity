@@ -70,6 +70,7 @@ import { ANI_STANDARD_TIMING } from '../../../ui/animations/animation.const';
 import { FocusModeTaskSelectorComponent } from '../focus-mode-task-selector/focus-mode-task-selector.component';
 import { DialogPomodoroSettingsComponent } from '../dialog-pomodoro-settings/dialog-pomodoro-settings.component';
 import { DialogFlowtimeSettingsComponent } from '../dialog-flowtime-settings/dialog-flowtime-settings.component';
+import { DistractionLogButtonComponent } from '../../distraction-tracker/distraction-log-button/distraction-log-button.component';
 
 @Component({
   selector: 'focus-mode-main',
@@ -106,6 +107,7 @@ import { DialogFlowtimeSettingsComponent } from '../dialog-flowtime-settings/dia
     InputDurationSliderComponent,
     SegmentedButtonGroupComponent,
     FocusModeTaskSelectorComponent,
+    DistractionLogButtonComponent,
   ],
   host: {
     ['[class.isSessionRunning]']: 'isSessionRunning()',

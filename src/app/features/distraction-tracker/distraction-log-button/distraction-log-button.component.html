@@ -1,0 +1,18 @@
+<button
+  mat-button
+  type="button"
+  class="distraction-btn"
+  [matTooltip]="T.F.DISTRACTION_TRACKER.LOG_BUTTON_TOOLTIP | translate"
+  (click)="open()"
+>
+  <mat-icon>visibility_off</mat-icon>
+  <span class="label">
+    {{ T.F.DISTRACTION_TRACKER.LOG_BUTTON_LABEL | translate }}
+  </span>
+  <span
+    class="count-badge"
+    [class.is-zero]="displayCount() === 0"
+  >
+    {{ displayCount() }}
+  </span>
+</button>

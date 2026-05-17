@@ -95,6 +95,16 @@
         </div>
       </div>
     }
+
+    @if (distractionTracker.todayCount() > 0) {
+      <div class="summary-point">
+        <mat-icon>visibility_off</mat-icon>
+        <div class="summary-text">
+          {{ T.F.DISTRACTION_TRACKER.DAILY_SUMMARY_TITLE | translate }}
+          <div class="summary-val">{{ distractionTracker.todayCount() }}</div>
+        </div>
+      </div>
+    }
   </div>
 
   @if (simpleCounterSummaryItems()?.length) {

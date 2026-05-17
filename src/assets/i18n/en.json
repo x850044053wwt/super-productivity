@@ -240,6 +240,24 @@
       "TITLE": "Enjoying Super Productivity?",
       "TXT": "It's a free, open-source project built by enthusiasts – no tracking, no ads. A rating or short message helps more people find it."
     },
+    "DISTRACTION_TRACKER": {
+      "LOG_BUTTON_LABEL": "I got distracted",
+      "LOG_BUTTON_TOOLTIP": "Log a distraction (tap a category to record)",
+      "DAILY_SUMMARY_TITLE": "Distractions today",
+      "DAILY_SUMMARY_EMPTY": "No distractions logged today — nice focus!",
+      "DIALOG": {
+        "TITLE": "What pulled you away?",
+        "HINT": "Tap a category to log it. Add a short note first if helpful.",
+        "NOTE_LABEL": "Note (optional)"
+      },
+      "CATEGORY": {
+        "PHONE": "Phone",
+        "SOCIAL_MEDIA": "Social media",
+        "EXTERNAL": "Interruption",
+        "WANDERING": "Mind wandering",
+        "OTHER": "Other"
+      }
+    },
     "DROPBOX": {
       "S": {
         "OFFLINE": "Dropbox: Unable to sync because offline",

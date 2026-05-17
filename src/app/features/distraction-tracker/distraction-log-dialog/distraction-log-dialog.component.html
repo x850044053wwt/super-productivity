@@ -1,0 +1,48 @@
+<h2 mat-dialog-title>{{ T.F.DISTRACTION_TRACKER.DIALOG.TITLE | translate }}</h2>
+
+<mat-dialog-content>
+  <p class="hint">{{ T.F.DISTRACTION_TRACKER.DIALOG.HINT | translate }}</p>
+
+  <div class="category-grid">
+    @for (category of categories; track category) {
+      <button
+        mat-icon-button
+        type="button"
+        class="category-btn"
+        [class.is-selected]="selected() === category"
+        [matTooltip]="categoryMeta[category].labelKey | translate"
+        (click)="logCategory(category)"
+      >
+        <mat-icon>{{ categoryMeta[category].icon }}</mat-icon>
+        <span class="category-label">
+          {{ categoryMeta[category].labelKey | translate }}
+        </span>
+      </button>
+    }
+  </div>
+
+  <mat-form-field
+    appearance="outline"
+    class="note-field"
+  >
+    <mat-label>{{ T.F.DISTRACTION_TRACKER.DIALOG.NOTE_LABEL | translate }}</mat-label>
+    <input
+      matInput
+      type="text"
+      maxlength="200"
+      [ngModel]="note()"
+      (ngModelChange)="note.set($event)"
+      (keydown.enter)="saveSelected()"
+    />
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button
+    mat-button
+    type="button"
+    (click)="cancel()"
+  >
+    {{ T.G.CANCEL | translate }}
+  </button>
+</mat-dialog-actions>

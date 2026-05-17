@@ -283,6 +283,8 @@
     <!-- Bottom control buttons (In Progress state) -->
     @if (isShowBottomControls()) {
       <section class="bottom-controls">
+        <distraction-log-button [taskId]="ct?.id"></distraction-log-button>
+
         @if (ct && ct.issueId && ct.issueType !== ICAL_TYPE) {
           <a
             mat-icon-button
