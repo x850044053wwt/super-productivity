@@ -81,6 +81,7 @@ import {
   MatMenuTrigger,
 } from '@angular/material/menu';
 import { LayoutService } from '../../../core-ui/layout/layout.service';
+import { DistractionLogButtonComponent } from '../../distraction-tracker/distraction-log-button/distraction-log-button.component';
 
 @Component({
   selector: 'focus-mode-main',
@@ -123,6 +124,7 @@ import { LayoutService } from '../../../core-ui/layout/layout.service';
     MatMenuContent,
     MatMenuItem,
     MatMenuTrigger,
+    DistractionLogButtonComponent,
   ],
   host: {
     ['[class.isSessionRunning]']: 'isSessionRunning()',

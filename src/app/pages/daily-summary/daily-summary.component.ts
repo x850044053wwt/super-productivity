@@ -79,6 +79,7 @@ import {
 } from './simple-counter-summary-item/simple-counter-summary-item.component';
 import { MetricService } from '../../features/metric/metric.service';
 import { isWithinYesterdayMargin } from './is-include-yesterday.util';
+import { DistractionTrackerService } from '../../features/distraction-tracker/distraction-tracker.service';
 
 const FINISH_DAY_SYNC_WAIT_TIMEOUT_MS = 30000;
 export const FINISH_DAY_FINAL_SYNC_TIMEOUT_MS = SYNC_WAIT_TIMEOUT_MS;
@@ -129,6 +130,7 @@ export class DailySummaryComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly _simpleCounterService = inject(SimpleCounterService);
   private readonly _dateService = inject(DateService);
   private readonly _metricService = inject(MetricService);
+  protected readonly distractionTracker = inject(DistractionTrackerService);
   private readonly _translateService = inject(TranslateService);
   private readonly _translateStore = inject(TranslateStore);
 
