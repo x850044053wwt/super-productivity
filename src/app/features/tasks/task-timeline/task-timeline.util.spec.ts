@@ -7,6 +7,8 @@ import {
   getNodeStatus,
   getUnlockedStageId,
   isStageComplete,
+  moveNodeInStage,
+  moveStage,
   reopenNode,
   startNode,
   updateNodeTitle,
@@ -205,6 +207,45 @@ describe('task timeline utilities', () => {
     expect(renamedNode.stages[1].nodes[0].title).toBe('Validate sample set');
     expect(timeline.stages[1].title).toBe('B');
     expect(timeline.stages[1].nodes[0].title).toBe('Validate samples');
+  });
+
+  it('reorders stages immutably', () => {
+    const result = moveStage(timeline, 2, 0);
+
+    expect(result.stages.map((stage) => stage.id)).toEqual([
+      'stage-c',
+      'stage-a',
+      'stage-b',
+    ]);
+    expect(timeline.stages.map((stage) => stage.id)).toEqual([
+      'stage-a',
+      'stage-b',
+      'stage-c',
+    ]);
+  });
+
+  it('returns the same timeline when a stage is dropped in place', () => {
+    expect(moveStage(timeline, 1, 1)).toBe(timeline);
+  });
+
+  it('reorders nodes within a single stage immutably', () => {
+    const result = moveNodeInStage(timeline, 'stage-b', 1, 0);
+
+    expect(result.stages[1].nodes.map((node) => node.id)).toEqual(['node-b2', 'node-b1']);
+    expect(result.stages[0]).toBe(timeline.stages[0]);
+    expect(result.stages[2]).toBe(timeline.stages[2]);
+    expect(timeline.stages[1].nodes.map((node) => node.id)).toEqual([
+      'node-b1',
+      'node-b2',
+    ]);
+  });
+
+  it('returns the same timeline when a node is dropped in place', () => {
+    expect(moveNodeInStage(timeline, 'stage-b', 0, 0)).toBe(timeline);
+  });
+
+  it('returns the same timeline when moving a node in an unknown stage', () => {
+    expect(moveNodeInStage(timeline, 'missing-stage', 0, 1)).toBe(timeline);
   });
 
   it('deletes nodes and stages immutably', () => {

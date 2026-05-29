@@ -1882,6 +1882,8 @@
         "TIMELINE_NODE_NOT_STARTED": "Not started",
         "TIMELINE_NODE_TITLE": "Timeline node title",
         "TIMELINE_REOPEN_NODE": "Reopen",
+        "TIMELINE_REORDER_NODE": "Reorder node",
+        "TIMELINE_REORDER_STAGE": "Reorder stage",
         "TIMELINE_START_NODE": "Start",
         "TIMELINE_STAGE_TITLE": "Timeline stage title",
         "TITLE_PLACEHOLDER": "Enter a title"

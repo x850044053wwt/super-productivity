@@ -58,7 +58,7 @@ describe('DistractionTrackerService', () => {
     service.log(DistractionCategory.Phone, { note: 'twitch', taskId: 't1' });
     const after = Date.now();
     expect(dispatchSpy).toHaveBeenCalledTimes(1);
-    const call = dispatchSpy.calls.mostRecent().args[0] as ReturnType<
+    const call = dispatchSpy.calls.mostRecent().args[0] as unknown as ReturnType<
       typeof addDistraction
     >;
     expect(call.type).toBe(addDistraction.type);
@@ -74,7 +74,7 @@ describe('DistractionTrackerService', () => {
     setup();
     const dispatchSpy = spyOn(store, 'dispatch');
     service.log(DistractionCategory.Wandering);
-    const call = dispatchSpy.calls.mostRecent().args[0] as ReturnType<
+    const call = dispatchSpy.calls.mostRecent().args[0] as unknown as ReturnType<
       typeof addDistraction
     >;
     expect(call.entry.note).toBeUndefined();

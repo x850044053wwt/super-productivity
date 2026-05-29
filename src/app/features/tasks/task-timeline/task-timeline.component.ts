@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -6,7 +7,13 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 import { nanoid } from 'nanoid';
 import { T } from '../../../t.const';
-import { TaskTimeline, TaskTimelineNodeStatus } from './task-timeline.model';
+import { dragDelayForTouch } from '../../../util/input-intent';
+import {
+  TaskTimeline,
+  TaskTimelineNode,
+  TaskTimelineNodeStatus,
+  TaskTimelineStage,
+} from './task-timeline.model';
 import {
   addNodeToStage,
   addStage,
@@ -14,6 +21,8 @@ import {
   deleteNode,
   deleteStage,
   getNodeStatus,
+  moveNodeInStage,
+  moveStage,
   reopenNode,
   startNode,
   updateNodeTitle,
@@ -26,13 +35,24 @@ import {
   templateUrl: './task-timeline.component.html',
   styleUrls: ['./task-timeline.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, MatButton, MatIconButton, MatIcon, MatTooltip, TranslatePipe],
+  imports: [
+    DatePipe,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    MatButton,
+    MatIconButton,
+    MatIcon,
+    MatTooltip,
+    TranslatePipe,
+  ],
 })
 export class TaskTimelineComponent {
   readonly timeline = input<TaskTimeline | undefined>();
   readonly timelineChange = output<TaskTimeline>();
 
   readonly T = T;
+  protected readonly dragDelayForTouch = dragDelayForTouch;
 
   nodeStatus(nodeId: string): TaskTimelineNodeStatus {
     return getNodeStatus(this.timeline(), nodeId);
@@ -96,6 +116,32 @@ export class TaskTimelineComponent {
     }
 
     this.emitIfChanged(deleteNode(currentTimeline, nodeId), currentTimeline);
+  }
+
+  dropStage(event: CdkDragDrop<TaskTimelineStage[]>): void {
+    const currentTimeline = this.timeline();
+
+    if (!currentTimeline) {
+      return;
+    }
+
+    this.emitIfChanged(
+      moveStage(currentTimeline, event.previousIndex, event.currentIndex),
+      currentTimeline,
+    );
+  }
+
+  dropNode(stageId: string, event: CdkDragDrop<TaskTimelineNode[]>): void {
+    const currentTimeline = this.timeline();
+
+    if (!currentTimeline) {
+      return;
+    }
+
+    this.emitIfChanged(
+      moveNodeInStage(currentTimeline, stageId, event.previousIndex, event.currentIndex),
+      currentTimeline,
+    );
   }
 
   start(nodeId: string): void {

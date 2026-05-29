@@ -1,9 +1,13 @@
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { T } from '../../../t.const';
 import { TaskTimelineComponent } from './task-timeline.component';
-import { TaskTimeline } from './task-timeline.model';
+import { TaskTimeline, TaskTimelineNode, TaskTimelineStage } from './task-timeline.model';
+
+const dragEvent = <T>(previousIndex: number, currentIndex: number): CdkDragDrop<T> =>
+  ({ previousIndex, currentIndex }) as CdkDragDrop<T>;
 
 describe('TaskTimelineComponent', () => {
   let fixture: ComponentFixture<TaskTimelineComponent>;
@@ -124,6 +128,44 @@ describe('TaskTimelineComponent', () => {
     const emitted = (component.timelineChange.emit as jasmine.Spy).calls.mostRecent()
       .args[0] as TaskTimeline;
     expect(emitted.stages[1].nodes[0].startedAt).toEqual(jasmine.any(Number));
+  });
+
+  it('emits a timeline with reordered stages when a stage is dropped', () => {
+    spyOn(component.timelineChange, 'emit');
+
+    component.dropStage(dragEvent<TaskTimelineStage[]>(2, 0));
+
+    expect(component.timelineChange.emit).toHaveBeenCalled();
+    const emitted = (component.timelineChange.emit as jasmine.Spy).calls.mostRecent()
+      .args[0] as TaskTimeline;
+    expect(emitted.stages.map((stage) => stage.id)).toEqual([
+      'stage-c',
+      'stage-a',
+      'stage-b',
+    ]);
+  });
+
+  it('emits a timeline with reordered nodes when a node is dropped in its stage', () => {
+    spyOn(component.timelineChange, 'emit');
+
+    component.dropNode('stage-b', dragEvent<TaskTimelineNode[]>(1, 0));
+
+    expect(component.timelineChange.emit).toHaveBeenCalled();
+    const emitted = (component.timelineChange.emit as jasmine.Spy).calls.mostRecent()
+      .args[0] as TaskTimeline;
+    expect(emitted.stages[1].nodes.map((node) => node.id)).toEqual([
+      'node-b2',
+      'node-b1',
+    ]);
+  });
+
+  it('does not emit when an item is dropped in place', () => {
+    spyOn(component.timelineChange, 'emit');
+
+    component.dropStage(dragEvent<TaskTimelineStage[]>(1, 1));
+    component.dropNode('stage-b', dragEvent<TaskTimelineNode[]>(0, 0));
+
+    expect(component.timelineChange.emit).not.toHaveBeenCalled();
   });
 
   it('unlocks the next stage after every current stage node is complete', () => {

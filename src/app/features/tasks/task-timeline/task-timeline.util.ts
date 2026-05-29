@@ -1,3 +1,4 @@
+import { moveItemInArray } from '../../../util/move-item-in-array';
 import {
   TaskTimeline,
   TaskTimelineNode,
@@ -164,6 +165,43 @@ export const deleteNode = (
     const nodes = stage.nodes.filter((node) => node.id !== nodeId);
 
     if (nodes.length === stage.nodes.length) {
+      return stage;
+    }
+
+    didUpdate = true;
+    return { ...stage, nodes };
+  });
+
+  return didUpdate ? { ...source, stages } : source;
+};
+
+export const moveStage = (
+  timeline: TaskTimeline | undefined,
+  fromIndex: number,
+  toIndex: number,
+): TaskTimeline => {
+  const source = timeline ?? createEmptyTimeline();
+  const stages = moveItemInArray(source.stages, fromIndex, toIndex);
+
+  return stages === source.stages ? source : { ...source, stages };
+};
+
+export const moveNodeInStage = (
+  timeline: TaskTimeline | undefined,
+  stageId: string,
+  fromIndex: number,
+  toIndex: number,
+): TaskTimeline => {
+  const source = timeline ?? createEmptyTimeline();
+  let didUpdate = false;
+  const stages = source.stages.map((stage) => {
+    if (stage.id !== stageId) {
+      return stage;
+    }
+
+    const nodes = moveItemInArray(stage.nodes, fromIndex, toIndex);
+
+    if (nodes === stage.nodes) {
       return stage;
     }
 
