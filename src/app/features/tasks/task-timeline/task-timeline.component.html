@@ -107,10 +107,10 @@
                 />
                 <div class="node-meta">
                   @if (node.startedAt !== undefined) {
-                    <span>{{ node.startedAt | date: 'shortTime' }}</span>
+                    <span>{{ node.startedAt | date: 'MMM d, HH:mm' }}</span>
                   }
                   @if (node.completedAt !== undefined) {
-                    <span>{{ node.completedAt | date: 'shortTime' }}</span>
+                    <span>{{ node.completedAt | date: 'MMM d, HH:mm' }}</span>
                   }
                 </div>
               </div>
