@@ -27,6 +27,14 @@ import { InlineMarkdownComponent } from '../../../ui/inline-markdown/inline-mark
 import { MarkdownModule } from 'ngx-markdown';
 import { MentionConfigService } from '../../tasks/mention-config.service';
 import { LayoutService } from '../../../core-ui/layout/layout.service';
+import {
+  DISTRACTION_TRACKER_FEATURE_KEY,
+  initialDistractionTrackerState,
+} from '../../distraction-tracker/store/distraction-tracker.reducer';
+
+const mockStoreInitialState = {
+  [DISTRACTION_TRACKER_FEATURE_KEY]: initialDistractionTrackerState,
+};
 
 @Component({
   selector: 'focus-mode-task-selector',
@@ -148,7 +156,7 @@ describe('FocusModeMainComponent', () => {
         EffectsModule.forRoot([]),
       ],
       providers: [
-        provideMockStore(),
+        provideMockStore({ initialState: mockStoreInitialState }),
         provideMockActions(() => of()),
         { provide: GlobalConfigService, useValue: globalConfigServiceSpy },
         { provide: TaskService, useValue: taskServiceSpy },
@@ -824,7 +832,7 @@ describe('FocusModeMainComponent - notes panel (issue #5752)', () => {
         MarkdownModule.forRoot(),
       ],
       providers: [
-        provideMockStore(),
+        provideMockStore({ initialState: mockStoreInitialState }),
         provideMockActions(() => of()),
         { provide: GlobalConfigService, useValue: globalConfigServiceSpy },
         { provide: TaskService, useValue: taskServiceSpy },
