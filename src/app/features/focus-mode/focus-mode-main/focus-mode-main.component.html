@@ -196,89 +196,6 @@
         <mat-icon>play_arrow</mat-icon>
       </button>
 
-    <!-- Bottom control buttons (In Progress state) -->
-    @if (isShowBottomControls()) {
-      <section class="bottom-controls">
-        <distraction-log-button [taskId]="ct?.id"></distraction-log-button>
-
-        @if (ct && ct.issueId && ct.issueType !== ICAL_TYPE) {
-          <a
-            mat-icon-button
-            [matTooltip]="T.F.FOCUS_MODE.OPEN_ISSUE_IN_BROWSER | translate"
-            target="_blank"
-            [href]="issueUrl$ | async"
-          >
-            @if (ct.issuePoints) {
-              <div class="mini-badge bgc-primary">{{ ct.issuePoints }}</div>
-            }
-            <mat-icon [svgIcon]="ct.issueType | issueIcon"></mat-icon>
-          </a>
-        }
-
-        @if (ct) {
-          <button
-            (click)="isFocusNotes.set(!isFocusNotes())"
-            [matTooltip]="T.F.FOCUS_MODE.SHOW_HIDE_NOTES_AND_ATTACHMENTS | translate"
-            class="ico-btn show-additional-info-btn"
-            color=""
-            mat-icon-button
-          >
-            @if (!isFocusNotes()) {
-              <mat-icon>chat</mat-icon>
-            }
-            @if (isFocusNotes()) {
-              <mat-icon>expand_more</mat-icon>
-            }
-          </button>
-        }
-      </section>
-    }
-  </div>
-
-  <!-- Task Selector Overlay -->
-  @if (isTaskSelectorOpen()) {
-    <focus-mode-task-selector
-      (taskSelected)="onTaskSelected($event)"
-      (closed)="closeTaskSelector()"
-    ></focus-mode-task-selector>
-  }
-
-  <!-- Notes and Attachments (In Progress only) -->
-  @if (isShowBottomControls() && ct && isFocusNotes()) {
-    <div
-      style="height: 100px"
-      @expand
-    ></div>
-
-    <div
-      class="notes-and-attachments"
-      @slideInOutFromBottom
-    >
-      <button
-        (click)="isFocusNotes.set(false)"
-        class="hide-notes-btn"
-        color=""
-        mat-mini-fab
-      >
-        <mat-icon>expand_more</mat-icon>
-      </button>
-
-      <div class="notes-panel">
-        <inline-markdown
-          (blur)="isFocusNotes.set(false)"
-          (blurred)="isFocusNotes.set(false)"
-          (changed)="changeTaskNotes($event); isFocusNotes.set(false)"
-          [isFocus]="isFocusNotes()"
-          [isShowControls]="true"
-          [isDefaultText]="!ct.notes"
-          [model]="ct.notes || defaultTaskNotes()"
-          [taskId]="ct.id"
-        ></inline-markdown>
-      </div>
-      @if (ct.attachments.length) {
-        <div
-          class="attachment-list-wrapper"
-          @fade
       @if (isShowPomodoroSettings()) {
         <button
           mat-icon-button
@@ -314,7 +231,6 @@
       }
     </div>
   }
-
   <!-- ========== ROW 4: Session control row (In Progress state) ========== -->
   <!-- Primary actions stay visible. Secondary actions use More on mobile and
        remain directly available on wider screens. -->
@@ -369,6 +285,8 @@
           <mat-icon>done_all</mat-icon>
         </button>
       }
+
+      <distraction-log-button [taskId]="displayed?.id"></distraction-log-button>
 
       @if (isXs() && (isPomodoro() || displayed)) {
         <button
