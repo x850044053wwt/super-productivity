@@ -147,4 +147,30 @@ test('OKR supports objective and key result ordering, deletion and persistence',
   await expect(objectives.first()).toContainText('Build a product');
   await expect(objectives.first().locator('.kr')).toContainText(['Beta users']);
   await expect(objectives.last()).toContainText('Ship v2');
+
+  // Self-review exists only for periods that already ended: 0–100 % plus one comment.
+  await expect(frame.getByRole('button', { name: 'Save review' })).toHaveCount(0);
+  await frame.getByRole('button', { name: 'Today', exact: true }).click();
+  await frame.getByRole('button', { name: 'Previous period', exact: true }).click();
+  await frame
+    .getByRole('textbox', { name: 'Objective (O)', exact: true })
+    .fill('Launch beta');
+  await frame.getByRole('button', { name: 'Add objective', exact: true }).click();
+  await expect(objectives).toHaveCount(1);
+  await frame.getByRole('slider', { name: 'Self-score: Launch beta' }).fill('80');
+  await expect(objectives.first().locator('.review output')).toHaveText('80%');
+  await frame
+    .getByRole('textbox', { name: 'One-line review: Launch beta' })
+    .fill('Shipped, but a week late.');
+  await frame.getByRole('button', { name: 'Save review' }).click();
+  await expect(objectives.first().locator('.badge')).toHaveText('80%');
+  await expect(objectives.first().locator('.comment')).toHaveText(
+    'Shipped, but a week late.',
+  );
+  await page.reload();
+  await frame.getByRole('button', { name: 'Previous period', exact: true }).click();
+  await expect(objectives.first().locator('.badge')).toHaveText('80%');
+  await expect(
+    frame.getByRole('slider', { name: 'Self-score: Launch beta' }),
+  ).toHaveValue('80');
 });
