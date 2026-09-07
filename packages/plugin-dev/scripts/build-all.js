@@ -50,6 +50,26 @@ function assertFilesExist(basePath, files, pluginName) {
 // Plugin configurations
 const plugins = [
   {
+    name: 'okr',
+    path: 'okr',
+    needsInstall: false,
+    copyToAssets: true,
+    buildCommand: async (pluginPath) => {
+      await execAsync(`node ${path.join(pluginPath, 'build.cjs')}`);
+      const distPath = path.join(pluginPath, 'dist');
+      assertFilesExist(
+        distPath,
+        ['manifest.json', 'plugin.js', 'icon.svg', 'index.html', 'i18n/en.json'],
+        'okr',
+      );
+      copyRecursive(
+        distPath,
+        path.join(__dirname, '../../../src/assets/bundled-plugins/okr'),
+      );
+      return 'Built and copied to assets';
+    },
+  },
+  {
     name: 'procrastination-buster',
     path: 'procrastination-buster',
     needsInstall: true,

@@ -34,6 +34,11 @@ async function pathExists(p) {
 
 async function getPlugins() {
   const pluginDevDir = path.join(__dirname, 'plugin-dev');
+  if (!(await pathExists(path.join(pluginDevDir, 'okr', 'manifest.json')))) {
+    throw new Error(
+      'OKR submodule is missing. Run: git submodule update --init packages/plugin-dev/okr',
+    );
+  }
   const entries = await fs.readdir(pluginDevDir, { withFileTypes: true });
 
   const plugins = [];

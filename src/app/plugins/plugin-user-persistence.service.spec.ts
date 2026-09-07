@@ -117,6 +117,75 @@ describe('PluginUserPersistenceService', () => {
       }
     });
 
+    it('should resolve coalesced saves only after the final value is dispatched', async () => {
+      jasmine.clock().install();
+      jasmine.clock().mockDate(new Date());
+      try {
+        await service.persistPluginUserData('okr', '{"objectives":[]}');
+        let completed = false;
+        const second = service.persistPluginUserData('okr', 'second');
+        const final = service.persistPluginUserData('okr', 'final');
+        void second.then(() => {
+          completed = true;
+        });
+        await drainAsync();
+        expect(completed).toBeFalse();
+        expect(second).toBe(final);
+        jasmine.clock().tick(MIN_PLUGIN_PERSIST_INTERVAL_MS);
+        await final;
+        expect(completed).toBeTrue();
+        expect(dispatchSpy).toHaveBeenCalledWith(
+          upsertPluginUserData({ pluginUserData: { id: 'okr', data: 'final' } }),
+        );
+      } finally {
+        jasmine.clock().uninstall();
+      }
+    });
+
+    it('should reject a coalesced save when dispatch fails and allow retry', async () => {
+      jasmine.clock().install();
+      jasmine.clock().mockDate(new Date());
+      try {
+        await service.persistPluginUserData('okr', 'first');
+        dispatchSpy.and.throwError('dispatch failed');
+        const pending = service.persistPluginUserData('okr', 'second');
+        const rejected = expectAsync(pending).toBeRejectedWithError('dispatch failed');
+        jasmine.clock().tick(MIN_PLUGIN_PERSIST_INTERVAL_MS);
+        await rejected;
+        dispatchSpy.and.callThrough();
+        const retry = service.persistPluginUserData('okr', 'retry');
+        jasmine.clock().tick(MIN_PLUGIN_PERSIST_INTERVAL_MS);
+        await retry;
+        expect(dispatchSpy).toHaveBeenCalledWith(
+          upsertPluginUserData({ pluginUserData: { id: 'okr', data: 'retry' } }),
+        );
+      } finally {
+        jasmine.clock().uninstall();
+      }
+    });
+
+    it('should settle pending saves on removal without resurrecting their data', async () => {
+      jasmine.clock().install();
+      jasmine.clock().mockDate(new Date());
+      try {
+        await service.persistPluginUserData('okr', 'first');
+        store.overrideSelector(selectPluginUserDataFeatureState, [
+          { id: 'okr', data: 'first' },
+        ]);
+        const pending = service.persistPluginUserData('okr', 'second');
+        const removal = service.removePluginUserData('okr');
+        await drainAsync();
+        jasmine.clock().tick(MIN_PLUGIN_PERSIST_INTERVAL_MS * 2);
+        await removal;
+        await pending;
+        expect(dispatchSpy).not.toHaveBeenCalledWith(
+          upsertPluginUserData({ pluginUserData: { id: 'okr', data: 'second' } }),
+        );
+      } finally {
+        jasmine.clock().uninstall();
+      }
+    });
+
     it('should keep only the most recent of several coalesced calls', async () => {
       const baseTime = Date.now();
       jasmine.clock().install();

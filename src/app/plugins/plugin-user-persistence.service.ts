@@ -51,6 +51,10 @@ export class PluginUserPersistenceService {
    * Active flush timers for coalesced writes, keyed by entity id.
    */
   private _flushTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private _pendingCompletion = new Map<
+    string,
+    { promise: Promise<void>; resolve: () => void; reject: (error: unknown) => void }
+  >();
 
   /**
    * The latest uncompressed input for an entity whose `_commit` has started
@@ -92,7 +96,8 @@ export class PluginUserPersistenceService {
    * periodic save.
    *
    * Returns a Promise that resolves once the data has been compressed and
-   * dispatched (or queued for a future commit). The size-cap check is
+   * dispatched (or explicitly cancelled by removal). Coalesced callers wait for
+   * the final value in their window to be dispatched, rather than just queued. The size-cap check is
    * synchronous: callers that hit the limit get a thrown Error, not a
    * rejected Promise, so the existing `try { persist(...) } catch` pattern
    * keeps working.
@@ -132,6 +137,13 @@ export class PluginUserPersistenceService {
       // the window opens, so no write is discarded.
       this._pendingData.set(entityId, data);
       if (!this._flushTimers.has(entityId)) {
+        let resolve!: () => void;
+        let reject!: (error: unknown) => void;
+        const promise = new Promise<void>((res, rej) => {
+          resolve = res;
+          reject = rej;
+        });
+        this._pendingCompletion.set(entityId, { promise, resolve, reject });
         const delay = MIN_PLUGIN_PERSIST_INTERVAL_MS - timeSinceLastPersist;
         this._flushTimers.set(
           entityId,
@@ -140,7 +152,7 @@ export class PluginUserPersistenceService {
           }, delay),
         );
       }
-      return Promise.resolve();
+      return this._pendingCompletion.get(entityId)!.promise;
     }
 
     return this._commit(entityId, data, now);
@@ -156,7 +168,14 @@ export class PluginUserPersistenceService {
       return;
     }
     this._pendingData.delete(entityId);
-    await this._commit(entityId, data, Date.now());
+    const completion = this._pendingCompletion.get(entityId);
+    this._pendingCompletion.delete(entityId);
+    try {
+      await this._commit(entityId, data, Date.now());
+      completion?.resolve();
+    } catch (error) {
+      completion?.reject(error);
+    }
   }
 
   /**
@@ -180,14 +199,16 @@ export class PluginUserPersistenceService {
       .then(() => this._encodeAndDispatch(entityId, data, myGeneration));
     this._commitChain.set(entityId, next);
 
-    next.finally(() => {
+    const cleanup = (): void => {
       if (this._committing.get(entityId) === data) {
         this._committing.delete(entityId);
       }
       if (this._commitChain.get(entityId) === next) {
         this._commitChain.delete(entityId);
       }
-    });
+    };
+    // Handle both outcomes without creating an unobserved rejecting finally promise.
+    void next.then(cleanup, cleanup);
 
     return next;
   }
@@ -293,6 +314,8 @@ export class PluginUserPersistenceService {
       this._flushTimers.delete(entityId);
     }
     this._pendingData.delete(entityId);
+    this._pendingCompletion.get(entityId)?.resolve();
+    this._pendingCompletion.delete(entityId);
     this._committing.delete(entityId);
     this._commitGeneration.set(entityId, (this._commitGeneration.get(entityId) ?? 0) + 1);
   }

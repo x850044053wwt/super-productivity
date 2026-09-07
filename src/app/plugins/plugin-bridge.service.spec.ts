@@ -82,7 +82,12 @@ describe('PluginBridgeService - Counter Methods', () => {
         { provide: WorkContextService, useValue: { activeWorkContext$: of(null) } },
         { provide: ProjectService, useValue: {} },
         { provide: TagService, useValue: {} },
-        { provide: PluginUserPersistenceService, useValue: {} },
+        {
+          provide: PluginUserPersistenceService,
+          useValue: jasmine.createSpyObj('PluginUserPersistenceService', [
+            'persistPluginUserData',
+          ]),
+        },
         { provide: PluginConfigService, useValue: {} },
         { provide: TaskArchiveService, useValue: {} },
         { provide: Router, useValue: {} },
@@ -115,6 +120,30 @@ describe('PluginBridgeService - Counter Methods', () => {
 
   afterEach(() => {
     store?.resetSelectors();
+  });
+
+  it('should keep the iframe save pending until persistence completes', async () => {
+    const persistence = TestBed.inject(
+      PluginUserPersistenceService,
+    ) as jasmine.SpyObj<PluginUserPersistenceService>;
+    let finish!: () => void;
+    persistence.persistPluginUserData.and.returnValue(
+      new Promise<void>((resolve) => {
+        finish = resolve;
+      }),
+    );
+    let completed = false;
+    const saving = service
+      .createBoundMethods('okr')
+      .persistDataSynced('{}')
+      .then(() => {
+        completed = true;
+      });
+    await Promise.resolve();
+    expect(completed).toBeFalse();
+    finish();
+    await saving;
+    expect(completed).toBeTrue();
   });
 
   describe('setCounter', () => {

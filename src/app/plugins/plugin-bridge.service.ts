@@ -1307,7 +1307,7 @@ export class PluginBridgeService implements OnDestroy {
       // Validates the pluginId synchronously; bubbles through the try/catch
       // below as a normal Error.
       const entityId = composeId(pluginId, key);
-      this._pluginUserPersistenceService.persistPluginUserData(entityId, dataStr);
+      await this._pluginUserPersistenceService.persistPluginUserData(entityId, dataStr);
       PluginLog.log('PluginBridge: Plugin data persisted successfully', {
         pluginId,
         keyLen: key?.length ?? 0,
