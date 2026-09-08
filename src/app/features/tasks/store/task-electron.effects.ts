@@ -14,8 +14,8 @@ import { selectCurrentTask, selectTaskEntities } from './task.selectors';
 import { selectTodayTaskIds } from '../../work-context/store/work-context.selectors';
 import { GlobalConfigService } from '../../config/global-config.service';
 import {
+  selectIsTimerActive,
   selectIsOsProgressBarOwnedBySession,
-  selectIsOverlayShown,
 } from '../../focus-mode/store/focus-mode.selectors';
 import { TimeTrackingActions } from '../../time-tracking/store/time-tracking.actions';
 import { FocusModeService } from '../../focus-mode/focus-mode.service';
@@ -39,7 +39,7 @@ import { LOCAL_ACTIONS } from '../../../util/local-actions.token';
 @Injectable()
 export class TaskElectronEffects {
   private _actions$ = inject(LOCAL_ACTIONS);
-  private _store$ = inject<Store<any>>(Store);
+  private _store$ = inject(Store);
   private _configService = inject(GlobalConfigService);
   private _focusModeService = inject(FocusModeService);
   private _taskService = inject(TaskService);
@@ -61,7 +61,7 @@ export class TaskElectronEffects {
         .pipe(
           select(selectCurrentTask),
           withLatestFrom(
-            this._store$.pipe(select(selectIsOverlayShown)),
+            this._store$.pipe(select(selectIsTimerActive)),
             this._focusModeService.currentSessionTime$,
           ),
           // Only take the first value and complete
@@ -130,7 +130,7 @@ export class TaskElectronEffects {
         throttleTime(500, undefined, { leading: true, trailing: true }),
         withLatestFrom(
           this._store$.pipe(select(selectCurrentTask)),
-          this._store$.pipe(select(selectIsOverlayShown)),
+          this._store$.pipe(select(selectIsTimerActive)),
           this._focusModeService.currentSessionTime$.pipe(startWith(0)),
         ),
         tap(([action, current, isFocusModeEnabled, currentFocusSessionTime]) => {
@@ -151,7 +151,9 @@ export class TaskElectronEffects {
     () =>
       this._actions$.pipe(
         ofType(setCurrentTask),
-        tap(({ id }) => {
+        withLatestFrom(this._store$.select(selectIsTimerActive)),
+        filter(([, isTimerActive]) => !isTimerActive),
+        tap(([{ id }]) => {
           if (!id) {
             window.ea.setProgressBar({
               progress: -1,
@@ -167,7 +169,9 @@ export class TaskElectronEffects {
     () =>
       this._actions$.pipe(
         ofType(TaskSharedActions.updateTask),
-        tap(({ task }) => {
+        withLatestFrom(this._store$.select(selectIsTimerActive)),
+        filter(([, isTimerActive]) => !isTimerActive),
+        tap(([{ task }]) => {
           if (task.changes.isDone) {
             window.ea.setProgressBar({
               progress: -1,
@@ -188,13 +192,8 @@ export class TaskElectronEffects {
         // tick after start instant and the final value at the end of a window.
         throttleTime(3000, undefined, { leading: true, trailing: true }),
         withLatestFrom(this._store$.select(selectIsOsProgressBarOwnedBySession)),
-        // Stand down while a timed focus session owns the OS progress bar, so
-        // that surface only ever has one writer. Gating on the focus overlay
-        // being *shown* instead left both writers active whenever the overlay
-        // was hidden, and the bar cycled between the two values every second
-        // (#9944). Open-ended (Flowtime) sessions own nothing, so the task
-        // progress below keeps the bar meaningful there.
-        filter(([a, isOwnedByFocusSession]) => !isOwnedByFocusSession),
+        // Share ownership with the focus progress writer, including Flowtime.
+        filter(([, isOwnedBySession]) => !isOwnedBySession),
         tap(([{ task }]) => {
           const progress = task.timeSpent / task.timeEstimate;
           window.ea.setProgressBar({
