@@ -711,10 +711,27 @@ export class FocusModeEffects {
     { dispatch: false },
   );
 
+  // Disabling the feature must release desktop progress and stop the local timer.
+  cancelSessionWhenDisabled$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updateGlobalConfigSection),
+      filter(({ sectionKey }) => sectionKey === 'appFeatures'),
+      withLatestFrom(
+        this.store.select(selectIsFocusModeEnabled),
+        this.store.select(selectors.selectIsTimerActive),
+      ),
+      filter(([, isEnabled, isTimerActive]) => !isEnabled && isTimerActive),
+      map(() => actions.cancelFocusSession()),
+    ),
+  );
+
   // Handle session cancellation
   cancelSession$ = createEffect(() =>
     this.actions$.pipe(
       ofType(actions.cancelFocusSession),
+      // Turning focus mode off should leave ordinary task tracking running.
+      withLatestFrom(this.store.select(selectIsFocusModeEnabled)),
+      filter(([, isEnabled]) => isEnabled),
       map(() => unsetCurrentTask()),
     ),
   );
