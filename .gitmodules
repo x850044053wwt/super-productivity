@@ -2,3 +2,6 @@
 	path = android
 	url = https://github.com/jiongxuan/super-productivity-android.git
 	branch = feat/platform-android-offline
+[submodule "packages/plugin-dev/okr"]
+	path = packages/plugin-dev/okr
+	url = git@github.com:x850044053wwt/super-productivity-okr.git
