@@ -13,7 +13,10 @@ import {
 import { selectCurrentTask, selectTaskEntities } from './task.selectors';
 import { selectTodayTaskIds } from '../../work-context/store/work-context.selectors';
 import { GlobalConfigService } from '../../config/global-config.service';
-import { selectIsTimerActive } from '../../focus-mode/store/focus-mode.selectors';
+import {
+  selectIsTimerActive,
+  selectIsOsProgressBarOwnedBySession,
+} from '../../focus-mode/store/focus-mode.selectors';
 import { TimeTrackingActions } from '../../time-tracking/store/time-tracking.actions';
 import { FocusModeService } from '../../focus-mode/focus-mode.service';
 import {
@@ -188,9 +191,9 @@ export class TaskElectronEffects {
         // collapses 1 IPC/sec into ~1 IPC/3s. Leading+trailing keeps the first
         // tick after start instant and the final value at the end of a window.
         throttleTime(3000, undefined, { leading: true, trailing: true }),
-        withLatestFrom(this._store$.select(selectIsTimerActive)),
-        // The timer owns progress even while paused or its overlay is hidden.
-        filter(([, isTimerActive]) => !isTimerActive),
+        withLatestFrom(this._store$.select(selectIsOsProgressBarOwnedBySession)),
+        // Share ownership with the focus progress writer, including Flowtime.
+        filter(([, isOwnedBySession]) => !isOwnedBySession),
         tap(([{ task }]) => {
           const progress = task.timeSpent / task.timeEstimate;
           window.ea.setProgressBar({

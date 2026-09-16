@@ -102,7 +102,14 @@ describe('TaskElectronEffects desktop timer ownership', () => {
             isFromTrackingReminder: false,
           }),
         );
-        expect(setProgressBar).not.toHaveBeenCalled();
+        if (isRunning) {
+          expect(setProgressBar).not.toHaveBeenCalled();
+        } else {
+          expect(setProgressBar).toHaveBeenCalledWith({
+            progress: 0.1,
+            progressBarMode: 'normal',
+          });
+        }
         expect(updateCurrentTask).toHaveBeenCalledWith(
           task,
           false,
@@ -116,6 +123,30 @@ describe('TaskElectronEffects desktop timer ownership', () => {
       });
     }
   }
+
+  it('shows task progress during an open-ended Flowtime session', () => {
+    store.overrideSelector(selectTimer, {
+      ...timer,
+      purpose: 'work',
+      isRunning: true,
+      duration: 0,
+    });
+    store.refreshState();
+    const sub = effects.setTaskBarProgress$.subscribe();
+    actions$.next(
+      TimeTrackingActions.addTimeSpent({
+        task,
+        date: '2026-09-08',
+        duration: 1000,
+        isFromTrackingReminder: false,
+      }),
+    );
+    expect(setProgressBar).toHaveBeenCalledWith({
+      progress: 0.1,
+      progressBarMode: 'normal',
+    });
+    sub.unsubscribe();
+  });
 
   it('shows task progress when no timer is active', () => {
     const sub = effects.setTaskBarProgress$.subscribe();
