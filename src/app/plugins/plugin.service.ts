@@ -68,6 +68,7 @@ const BUNDLED_PLUGIN_PATHS = [
   'assets/bundled-plugins/caldav-calendar-provider',
   'assets/bundled-plugins/doc-mode',
   'assets/bundled-plugins/todoist-import',
+  'assets/bundled-plugins/okr',
 ] as const;
 
 // Reserved ids: an uploaded plugin may not reuse a bundled plugin's manifest id (it would
